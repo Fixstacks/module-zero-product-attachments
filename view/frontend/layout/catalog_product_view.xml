@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+    The product's files as a section of the product page's details (the
+    theme leaves out a section that renders empty: a product without files).
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="product.info.details">
+            <block class="Magento\Catalog\Block\Product\View" name="zero.product.attachments"
+                   template="Zero_ProductAttachments::downloads.phtml" group="detailed_info"
+                   ifconfig="zero_attachments/general/enabled">
+                <arguments>
+                    <argument name="title" xsi:type="helper" helper="Zero\ProductAttachments\Helper\Title::get"/>
+                    <argument name="sort_order" xsi:type="string">40</argument>
+                    <argument name="downloads" xsi:type="object">Zero\ProductAttachments\ViewModel\Downloads</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+    A file on a product's page: for every store view (0) or one. The file
+    sits under pub/media/zero/attachments; it goes with its product.
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="zero_product_attachment" resource="default" engine="innodb" comment="Zero Product Attachments">
+        <column xsi:type="int" name="attachment_id" unsigned="true" nullable="false" identity="true" comment="Attachment ID"/>
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" default="0" comment="Store View (0: all)"/>
+        <column xsi:type="varchar" name="title" length="255" nullable="false" comment="Title"/>
+        <column xsi:type="varchar" name="file" length="255" nullable="false" comment="Path under media"/>
+        <column xsi:type="varchar" name="file_name" length="255" nullable="false" comment="Original file name"/>
+        <column xsi:type="int" name="size" unsigned="true" nullable="false" default="0" comment="Bytes"/>
+        <column xsi:type="smallint" name="sort_order" unsigned="false" nullable="false" default="0" comment="Sort Order"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Added"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="attachment_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ZERO_PRODUCT_ATTACHMENT_PRODUCT_ID_CATALOG_PRODUCT_ENTITY_ENTITY_ID"
+                    table="zero_product_attachment" column="product_id"
+                    referenceTable="catalog_product_entity" referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ZERO_PRODUCT_ATTACHMENT_STORE_ID_STORE_STORE_ID"
+                    table="zero_product_attachment" column="store_id"
+                    referenceTable="store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <index referenceId="ZERO_PRODUCT_ATTACHMENT_PRODUCT_ID_STORE_ID" indexType="btree">
+            <column name="product_id"/>
+            <column name="store_id"/>
+        </index>
+    </table>
+</schema>

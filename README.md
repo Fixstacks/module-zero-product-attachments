@@ -1,0 +1,63 @@
+# Zero_ProductAttachments
+
+Files on product pages: manuals, data sheets, certificates, size drawings.
+A "Downloads" section in the product page's details lists them with their
+kind and size; each opens in a new tab.
+
+## Install
+
+Requires Magento Open Source 2.4.7–2.4.9 and PHP 8.2–8.4 with the GD extension built with WebP (`php -r 'var_dump(function_exists("imagewebp"));'` says `true`; Magento's own PHP requirements cover the rest). Without WebP in GD, Zero skips its WebP image copies and serves the originals.
+
+```bash
+composer require fixstacks/module-zero-product-attachments
+bin/magento setup:upgrade
+bin/magento setup:di:compile           # production mode
+bin/magento setup:static-content:deploy # production mode
+bin/magento cache:flush
+```
+
+Composer installs `fixstacks/module-zero-core` with it.
+
+Part of [`fixstacks/zero`](https://fixstacks.com/zero), which installs the Zero theme and every Zero module at once.
+
+## Setting it up
+
+Stores > Configuration > Zero > Product Attachments: Enabled (off by default,
+per store view), the section's title (Downloads), the largest file (20 MB).
+
+## Admin
+
+Catalog > Product Attachments (resource `Zero_ProductAttachments::attachments`):
+attach a file to a product by its SKU, with a title (empty: the file's
+name), a store view (or all) and a sort order; below, the files of every
+product or of one SKU, each with its title, store view and order to change,
+and Remove. A product's form has an **Attachments** button that opens its
+files.
+
+## Files
+
+Allowed: PDF, JPEG, PNG, WebP, ZIP, TXT, CSV, Word, Excel, PowerPoint,
+OpenDocument text and spreadsheet. Each is checked by its extension and by
+its content (an HTML page named .pdf is refused). Nothing a browser would
+run from the store's domain: no HTML, SVG or scripts.
+
+Stored under `pub/media/zero/attachments/<random>/<clean-name>`, served as
+media. Removing an attachment removes its file; deleting the product removes
+its attachments' rows. Adding, changing or removing a file cleans the
+product's page from the page cache (built-in or Varnish).
+
+Table: `zero_product_attachment`.
+
+## License
+
+OSL-3.0 or AFL-3.0, your choice: see `NOTICE.md`.
+
+---
+
+<a href="https://vilmate.com"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Fixstacks/zero/main/docs/images/vilmate-logo-dark.svg">
+  <img src="https://raw.githubusercontent.com/Fixstacks/zero/main/docs/images/vilmate-logo.svg" alt="Vilmate" height="34" align="right">
+</picture></a>
+
+Zero is made by [Fixstacks](https://fixstacks.com/zero) in partnership with [Vilmate](https://vilmate.com), a software development company.
+Documentation: https://fixstacks.com/zero/docs. Demo store: https://zero.fixstacks.com.

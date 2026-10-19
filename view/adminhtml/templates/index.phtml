@@ -1,0 +1,118 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Catalog > Product Attachments: attach a file to a product, then the files
+ * (all, or one product's), each with its title, store view and order.
+ *
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+/** @var \Zero\ProductAttachments\ViewModel\Admin $admin */
+$admin = $block->getData('view_model');
+$sku = $admin->sku();
+$stores = $admin->stores();
+$rows = $admin->rows();
+?>
+<?php if (!$admin->isEnabled()): ?>
+    <div class="message message-notice"><div><?= $escaper->escapeHtml(__('Product pages don\'t show attachments yet: switch them on in Stores > Configuration > Zero > Product Attachments.')) ?></div></div>
+<?php endif; ?>
+
+<form class="zpa-add" method="post" enctype="multipart/form-data" action="<?= $escaper->escapeUrl($admin->url('zero_attachments/attachment/upload')) ?>">
+    <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($admin->formKey()) ?>">
+    <h2 class="zpa-title"><?= $escaper->escapeHtml(__('Attach a file')) ?></h2>
+    <label for="zpa-sku"><?= $escaper->escapeHtml(__('Product SKU')) ?></label>
+    <input id="zpa-sku" class="admin__control-text" type="text" name="sku" required value="<?= $escaper->escapeHtmlAttr($sku) ?>">
+    <label for="zpa-file"><?= $escaper->escapeHtml(__('File')) ?></label>
+    <div>
+        <input id="zpa-file" type="file" name="file" required accept="<?= $escaper->escapeHtmlAttr($admin->accept()) ?>">
+        <small><?= $escaper->escapeHtml(__('PDF, pictures, Office and OpenDocument files, ZIP, CSV or text; up to %1.', $admin->maxSize())) ?></small>
+    </div>
+    <label for="zpa-title"><?= $escaper->escapeHtml(__('Title')) ?></label>
+    <input id="zpa-title" class="admin__control-text" type="text" name="title" maxlength="255" placeholder="<?= $escaper->escapeHtmlAttr(__('Empty: the file\'s name')) ?>">
+    <label for="zpa-store"><?= $escaper->escapeHtml(__('Store View')) ?></label>
+    <select id="zpa-store" class="admin__control-select" name="store">
+        <?php foreach ($stores as $id => $label): ?>
+            <option value="<?= (int) $id ?>"><?= $escaper->escapeHtml($label) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <label for="zpa-sort"><?= $escaper->escapeHtml(__('Sort Order')) ?></label>
+    <input id="zpa-sort" class="admin__control-text zpa-narrow" type="number" name="sort_order" value="0">
+    <span></span>
+    <div><button type="submit" class="action-primary"><?= $escaper->escapeHtml(__('Attach')) ?></button></div>
+</form>
+
+<form class="zpa-filter" method="get" action="<?= $escaper->escapeUrl($admin->url('zero_attachments/attachment/index')) ?>">
+    <label for="zpa-filter-sku"><?= $escaper->escapeHtml(__('Show the files of SKU')) ?></label>
+    <input id="zpa-filter-sku" class="admin__control-text" type="search" name="sku" value="<?= $escaper->escapeHtmlAttr($sku) ?>">
+    <button type="submit" class="action-secondary"><?= $escaper->escapeHtml(__('Show')) ?></button>
+    <?php if ($sku !== ''): ?>
+        <a href="<?= $escaper->escapeUrl($admin->url('zero_attachments/attachment/index')) ?>"><?= $escaper->escapeHtml(__('All products')) ?></a>
+    <?php endif; ?>
+</form>
+
+<?php if ($rows): ?>
+    <table class="data-grid zpa-table">
+        <thead>
+        <tr>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Product')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('File')) ?></th>
+            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Title, store view, order')) ?></th>
+            <th class="data-grid-th"><span class="admin__visually-hidden"><?= $escaper->escapeHtml(__('Actions')) ?></span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($rows as $row): ?>
+            <?php $formId = 'zpa-row-' . (int) $row['attachment_id']; ?>
+            <tr>
+                <td><a href="<?= $escaper->escapeUrl($admin->productUrl($row)) ?>"><?= $escaper->escapeHtml($row['sku']) ?></a></td>
+                <td>
+                    <a href="<?= $escaper->escapeUrl($admin->fileUrl($row)) ?>" target="_blank" rel="noopener"><?= $escaper->escapeHtml($row['file_name']) ?></a>
+                    <small><?= $escaper->escapeHtml($admin->size((int) $row['size'])) ?></small>
+                </td>
+                <td>
+                    <form id="<?= $escaper->escapeHtmlAttr($formId) ?>" class="zpa-row" method="post" action="<?= $escaper->escapeUrl($admin->url('zero_attachments/attachment/save')) ?>">
+                        <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($admin->formKey()) ?>">
+                        <input type="hidden" name="id" value="<?= (int) $row['attachment_id'] ?>">
+                        <input type="hidden" name="sku" value="<?= $escaper->escapeHtmlAttr($sku) ?>">
+                        <input class="admin__control-text" type="text" name="title" maxlength="255" aria-label="<?= $escaper->escapeHtmlAttr(__('Title')) ?>" value="<?= $escaper->escapeHtmlAttr($row['title']) ?>">
+                        <select class="admin__control-select" name="store" aria-label="<?= $escaper->escapeHtmlAttr(__('Store View')) ?>">
+                            <?php foreach ($stores as $id => $label): ?>
+                                <option value="<?= (int) $id ?>"<?= (int) $row['store_id'] === $id ? ' selected' : '' ?>><?= $escaper->escapeHtml($label) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <input class="admin__control-text zpa-narrow" type="number" name="sort_order" aria-label="<?= $escaper->escapeHtmlAttr(__('Sort Order')) ?>" value="<?= (int) $row['sort_order'] ?>">
+                        <button type="submit" class="action-secondary"><?= $escaper->escapeHtml(__('Save')) ?></button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="<?= $escaper->escapeUrl($admin->url('zero_attachments/attachment/delete')) ?>">
+                        <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($admin->formKey()) ?>">
+                        <input type="hidden" name="id" value="<?= (int) $row['attachment_id'] ?>">
+                        <input type="hidden" name="sku" value="<?= $escaper->escapeHtmlAttr($sku) ?>">
+                        <button type="submit" class="action-tertiary"><?= $escaper->escapeHtml(__('Remove')) ?></button>
+                    </form>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php else: ?>
+    <p class="zpa-empty"><?= $escaper->escapeHtml($sku !== '' ? __('%1 has no files yet.', $sku) : __('No product has files yet.')) ?></p>
+<?php endif; ?>
+
+<style>
+    .zpa-add { display: grid; grid-template-columns: 140px minmax(0, 480px); gap: 10px 16px; align-items: start; max-width: 680px; margin: 0 0 28px; }
+    .zpa-add > label { padding-top: 7px; font-weight: 600; }
+    .zpa-add small, .zpa-table small { display: block; margin-top: 4px; color: #6f6f6f; }
+    .zpa-title { grid-column: 1 / -1; margin: 0 0 4px; font-size: 1.8rem; font-weight: 600; }
+    .zpa-narrow { width: 90px; }
+    .zpa-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; }
+    .zpa-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+    .zpa-row input[name="title"] { flex: 1 1 200px; }
+    .zpa-table td { vertical-align: top; }
+    .zpa-table form { margin: 0; }
+    .zpa-empty { color: #6f6f6f; }
+    @media (max-width: 767px) { .zpa-add { grid-template-columns: 1fr; } }
+</style>

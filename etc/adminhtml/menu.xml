@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+    Catalog > Product Attachments.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Zero_ProductAttachments::attachments" title="Product Attachments" translate="title" module="Zero_ProductAttachments"
+             sortOrder="40" parent="Magento_Catalog::inventory" action="zero_attachments/attachment/index"
+             resource="Zero_ProductAttachments::attachments"/>
+    </menu>
+</config>
