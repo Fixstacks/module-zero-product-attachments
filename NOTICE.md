@@ -1,4 +1,4 @@
-# fixstacks/module-zero-product-attachments — licensing
+# zerofront/module-zero-product-attachments — licensing
 
 Copyright © 2026 Roman Pasichnyk.
 
